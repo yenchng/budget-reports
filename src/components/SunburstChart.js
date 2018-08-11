@@ -25,7 +25,7 @@ const Label = ({ x, y, children }) => (
   </text>
 );
 
-const ExpenseBreakdownChart = ({ data, width = 800, height = 500 }) => {
+const SunburstChart = ({ data, width = 360, height = 360 }) => {
   const radius = Math.min(width, height) / 2;
   return (
     <svg width={width} height={height}>
@@ -61,7 +61,7 @@ const ExpenseBreakdownChart = ({ data, width = 800, height = 500 }) => {
   );
 };
 
-ExpenseBreakdownChart.propTypes = {
+SunburstChart.propTypes = {
   data: PropTypes.arrayOf(
     PropTypes.shape({
       amount: PropTypes.number.isRequired,
@@ -70,4 +70,4 @@ ExpenseBreakdownChart.propTypes = {
   ).isRequired
 };
 
-export default ExpenseBreakdownChart;
+export default SunburstChart;

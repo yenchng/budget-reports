@@ -1,17 +1,31 @@
 import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import sortBy from "lodash/fp/sortBy";
-import { simpleMemoize, groupByProp, sumByProp, sumBy } from "../optimized";
+import {
+  simpleMemoize,
+  groupByProp,
+  sumByProp,
+  sumBy,
+  notAny
+} from "../optimized";
+import {
+  getFirstMonth,
+  getTransactionMonth,
+  isIncome,
+  isStartingBalanceOrReconciliation,
+  isTransfer
+} from "../budgetUtils";
 import pages, { makeLink } from "../pages";
 import { LargeListItemLink } from "./ListItem";
 import { SecondaryText } from "./typeComponents";
-import ExpenseBreakdownChart from "./ExpenseBreakdownChart";
+import SunburstChart from "./SunburstChart";
+import MonthByMonthSection from "./MonthByMonthSection";
 import CollapsibleSection from "./CollapsibleSection";
 import Section from "./Section";
 import Amount from "./Amount";
 
-const getGroupsWithMeta = simpleMemoize(budget => {
-  const { categoryGroups, categories, transactions } = budget;
+const getGroupsWithMeta = simpleMemoize((budget, transactions) => {
+  const { categoryGroups, categories } = budget;
 
   const transactionsByCategory = groupByProp("category_id")(transactions);
   const categoriesByGroup = groupByProp("category_group_id")(categories);
@@ -31,22 +45,52 @@ const getGroupsWithMeta = simpleMemoize(budget => {
 class Groups extends PureComponent {
   static propTypes = {
     budget: PropTypes.object.isRequired,
+    investmentAccounts: PropTypes.object.isRequired,
     sort: PropTypes.oneOf(["amount", "name", "transactions"]).isRequired
   };
 
-  render() {
-    const { budget, sort } = this.props;
+  state = { selectedMonth: null };
 
-    const groupsWithMeta = getGroupsWithMeta(budget);
+  handleSelectMonth = month => {
+    this.setState(state => ({
+      selectedMonth: state.selectedMonth === month ? null : month
+    }));
+  };
+
+  render() {
+    const { budget, sort, investmentAccounts } = this.props;
+    const { selectedMonth } = this.state;
+
+    const firstMonth = getFirstMonth(budget);
+
+    const transactions = budget.transactions.filter(
+      notAny([
+        isStartingBalanceOrReconciliation(budget),
+        isIncome(budget),
+        isTransfer(investmentAccounts)
+      ])
+    );
+
+    const transactionsInMonth = transactions.filter(
+      transaction =>
+        !selectedMonth || getTransactionMonth(transaction) === selectedMonth
+    );
+
+    const groupsWithMeta = getGroupsWithMeta(budget, transactionsInMonth);
     const sortedGroups = sortBy(
       sort === "name" ? group => group.name.replace(/[^a-zA-Z0-9]/g, "") : sort
     )(groupsWithMeta);
-    console.log("groupsWithMeta:", groupsWithMeta);
 
     return (
       <Fragment>
+        <MonthByMonthSection
+          firstMonth={firstMonth}
+          selectedMonth={selectedMonth}
+          transactions={transactions}
+          onSelectMonth={this.handleSelectMonth}
+        />
         <CollapsibleSection title="Breakdown Chart">
-          <ExpenseBreakdownChart data={groupsWithMeta} />
+          <SunburstChart data={groupsWithMeta} />
         </CollapsibleSection>
         <Section noPadding>
           {sortedGroups.map(group => (
