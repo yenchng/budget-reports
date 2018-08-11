@@ -1,10 +1,12 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import sortBy from "lodash/fp/sortBy";
 import { simpleMemoize, groupByProp, sumByProp, sumBy } from "../optimized";
 import pages, { makeLink } from "../pages";
 import { LargeListItemLink } from "./ListItem";
 import { SecondaryText } from "./typeComponents";
+import ExpenseBreakdownChart from "./ExpenseBreakdownChart";
+import CollapsibleSection from "./CollapsibleSection";
 import Section from "./Section";
 import Amount from "./Amount";
 
@@ -39,24 +41,30 @@ class Groups extends PureComponent {
     const sortedGroups = sortBy(
       sort === "name" ? group => group.name.replace(/[^a-zA-Z0-9]/g, "") : sort
     )(groupsWithMeta);
+    console.log("groupsWithMeta:", groupsWithMeta);
 
     return (
-      <Section noPadding>
-        {sortedGroups.map(group => (
-          <LargeListItemLink
-            key={group.id}
-            to={makeLink(pages.group.path, {
-              budgetId: budget.id,
-              categoryGroupId: group.id
-            })}
-          >
-            <div style={{ whiteSpace: "pre" }}>{group.name}</div>
-            <SecondaryText style={{ textAlign: "right" }}>
-              <Amount amount={group.amount} />
-            </SecondaryText>
-          </LargeListItemLink>
-        ))}
-      </Section>
+      <Fragment>
+        <CollapsibleSection title="Breakdown Chart">
+          <ExpenseBreakdownChart data={groupsWithMeta} />
+        </CollapsibleSection>
+        <Section noPadding>
+          {sortedGroups.map(group => (
+            <LargeListItemLink
+              key={group.id}
+              to={makeLink(pages.group.path, {
+                budgetId: budget.id,
+                categoryGroupId: group.id
+              })}
+            >
+              <div style={{ whiteSpace: "pre" }}>{group.name}</div>
+              <SecondaryText style={{ textAlign: "right" }}>
+                <Amount amount={group.amount} />
+              </SecondaryText>
+            </LargeListItemLink>
+          ))}
+        </Section>
+      </Fragment>
     );
   }
 }
