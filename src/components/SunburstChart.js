@@ -31,7 +31,11 @@ const Label = ({ x, y, children }) => (
 const ANIMATION_DURATION = 300;
 
 const normalizeData = data =>
-  data.map(({ amount, name, id }) => ({ id, label: name, value: -amount }));
+  data.map(({ amount, name, id }) => ({
+    id,
+    label: name,
+    value: Math.max(-amount, 0)
+  }));
 
 const addAngles = data => {
   const totalValue = sumByProp("value")(data);
@@ -54,13 +58,13 @@ const interpolate = (prevData, currData, progress) => {
 
   return ids.map(id => {
     const previous = prevDataById[id] || {
-      startAngle: 0,
-      endAngle: 0,
+      startAngle: 2 * Math.PI,
+      endAngle: 2 * Math.PI,
       value: 0
     };
     const current = currDataById[id] || {
-      startAngle: 0,
-      endAngle: 0,
+      startAngle: 2 * Math.PI,
+      endAngle: 2 * Math.PI,
       value: 0
     };
 
@@ -159,7 +163,7 @@ class SunburstChart extends Component {
             outerRadius={radius - 80}
             innerRadius={radius - 120}
           />
-          {data.map(d => (
+          {sortBy("id")(data).map(d => (
             <Pie
               key={d.id}
               data={[d]}
