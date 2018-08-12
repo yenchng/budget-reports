@@ -4,7 +4,7 @@ import keys from "lodash/fp/keys";
 import sortBy from "lodash/fp/sortBy";
 import uniq from "lodash/fp/uniq";
 import { keyByProp, sumByProp } from "../optimized";
-import { Pie } from "@vx/shape";
+import { Arc } from "@vx/shape";
 import { Group } from "@vx/group";
 
 const colors = [
@@ -22,20 +22,7 @@ const colors = [
   "#ffed6f"
 ];
 
-const Label = ({ x, y, children }) => (
-  <text fill="black" textAnchor="middle" x={x} y={y} dy=".33em" fontSize={9}>
-    {children}
-  </text>
-);
-
 const ANIMATION_DURATION = 300;
-
-const normalizeData = data =>
-  data.map(({ amount, name, id }) => ({
-    id,
-    label: name,
-    value: Math.max(-amount, 0)
-  }));
 
 const addAngles = data => {
   const totalValue = sumByProp("value")(data);
@@ -85,9 +72,9 @@ class SunburstChart extends Component {
   static propTypes = {
     data: PropTypes.arrayOf(
       PropTypes.shape({
-        amount: PropTypes.number.isRequired,
+        value: PropTypes.number.isRequired,
         id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired
+        label: PropTypes.string.isRequired
       })
     ).isRequired
   };
@@ -135,14 +122,8 @@ class SunburstChart extends Component {
 
   render() {
     const { width, height } = this.props;
-    const {
-      previousData: rawPrevious,
-      currentData: rawCurrent,
-      animationStartTime
-    } = this.state;
+    const { previousData, currentData, animationStartTime } = this.state;
     const radius = Math.min(width, height) / 2;
-    const currentData = normalizeData(rawCurrent);
-    const previousData = rawPrevious && normalizeData(rawPrevious);
 
     const data = animationStartTime
       ? interpolate(
@@ -156,23 +137,23 @@ class SunburstChart extends Component {
       <svg width={width} height={height}>
         <rect x={0} y={0} width={width} height={height} fill="none" />
         <Group top={height / 2} left={width / 2}>
-          <Pie
-            data={[{ value: 1 }]}
-            pieValue={d => d.value}
+          <Arc
+            data={{ value: 1 }}
             fill="#f5f5f5"
+            startAngle={0.001}
+            endAngle={2 * Math.PI}
             outerRadius={radius - 80}
             innerRadius={radius - 120}
           />
           {sortBy("id")(data).map(d => (
-            <Pie
+            <Arc
               key={d.id}
-              data={[d]}
+              data={d}
               startAngle={d.startAngle}
               endAngle={d.endAngle}
-              pieValue={d => d.value}
               outerRadius={radius - 80}
               innerRadius={radius - 120}
-              fill={d => colors[d.data.label.length % colors.length]}
+              fill={colors[d.label.length % colors.length]}
               padAngle={0}
               onClick={data => event => {
                 console.log("data:", data);

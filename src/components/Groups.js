@@ -18,6 +18,7 @@ import {
 import pages, { makeLink } from "../pages";
 import { LargeListItemLink } from "./ListItem";
 import { SecondaryText } from "./typeComponents";
+import GroupsBreakdownChart from "./GroupsBreakdownChart";
 import SunburstChart from "./SunburstChart";
 import MonthByMonthSection from "./MonthByMonthSection";
 import CollapsibleSection from "./CollapsibleSection";
@@ -90,7 +91,7 @@ class Groups extends PureComponent {
           onSelectMonth={this.handleSelectMonth}
         />
         <CollapsibleSection title="Breakdown Chart">
-          <SunburstChart data={groupsWithMeta} />
+          <GroupsBreakdownChart groups={groupsWithMeta} />
         </CollapsibleSection>
         <Section noPadding>
           {sortedGroups.map(group => (
