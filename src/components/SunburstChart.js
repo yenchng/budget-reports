@@ -79,7 +79,7 @@ class SunburstChart extends Component {
     ).isRequired
   };
 
-  static defaultProps = { width: 360, height: 360 };
+  static defaultProps = { width: 200, height: 200 };
 
   state = {
     previousData: null,
@@ -142,8 +142,8 @@ class SunburstChart extends Component {
             fill="#f5f5f5"
             startAngle={0.001}
             endAngle={2 * Math.PI}
-            outerRadius={radius - 80}
-            innerRadius={radius - 120}
+            outerRadius={radius}
+            innerRadius={radius - 35}
           />
           {sortBy("id")(data).map(d => (
             <Arc
@@ -151,8 +151,8 @@ class SunburstChart extends Component {
               data={d}
               startAngle={d.startAngle}
               endAngle={d.endAngle}
-              outerRadius={radius - 80}
-              innerRadius={radius - 120}
+              outerRadius={radius}
+              innerRadius={radius - 35}
               fill={colors[d.label.length % colors.length]}
               padAngle={0}
               onClick={data => event => {

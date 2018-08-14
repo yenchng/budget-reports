@@ -19,7 +19,6 @@ import pages, { makeLink } from "../pages";
 import { LargeListItemLink } from "./ListItem";
 import { SecondaryText } from "./typeComponents";
 import GroupsBreakdownChart from "./GroupsBreakdownChart";
-import SunburstChart from "./SunburstChart";
 import MonthByMonthSection from "./MonthByMonthSection";
 import CollapsibleSection from "./CollapsibleSection";
 import Section from "./Section";
