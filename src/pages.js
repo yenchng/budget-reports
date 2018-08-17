@@ -1,3 +1,4 @@
+import Dashboard from "./components/Dashboard";
 import CurrentMonth from "./components/CurrentMonth";
 import CurrentMonthGroup from "./components/CurrentMonthGroup";
 import CurrentMonthCategory from "./components/CurrentMonthCategory";
@@ -14,6 +15,12 @@ export const makeLink = (path, params) =>
   path.replace(/:([a-zA-Z]*)/g, (_, part) => params[part]);
 
 const pages = {
+  dashboard: {
+    path: "/budgets/:budgetId/dashboard",
+    title: "Dashboard",
+    Component: Dashboard,
+    props: props => ({ budget: props.budget, currentMonth: props.currentMonth })
+  },
   currentMonth: {
     path: "/budgets/:budgetId/current",
     title: "Current Month Spending",

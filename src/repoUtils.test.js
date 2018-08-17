@@ -2,6 +2,7 @@ import { sanitizeBudget, mergeBudgets } from "./repoUtils";
 
 describe("sanitizeBudget", () => {
   const budget = {
+    accounts: [],
     payees: [
       { id: "foo-bar" },
       { id: "starting-balance", name: "Starting Balance" }

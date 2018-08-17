@@ -48,6 +48,7 @@ class SidebarMenuContent extends PureComponent {
       <Fragment>
         <PureHeader onCloseSidebar={onCloseSidebar} budgetId={budgetId} />
         {[
+          "dashboard",
           "currentMonth",
           "categories",
           "incomeVsExpenses",

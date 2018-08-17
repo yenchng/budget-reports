@@ -20,6 +20,25 @@ const GROUPS_TO_HIDE = [
 
 const MAX_MONTHS_TO_SHOW = 24;
 
+const sanitizeCategory = category => ({
+  ...category,
+  activity: formatCurrency(category.activity),
+  balance: formatCurrency(category.balance),
+  budgeted: formatCurrency(category.budgeted)
+});
+
+const sanitizeMonth = ({ categoryGroupsById }) => month => ({
+  ...month,
+  activity: formatCurrency(month.activity),
+  budgeted: formatCurrency(month.budgeted),
+  income: formatCurrency(month.income),
+  to_be_budgeted: formatCurrency(month.to_be_budgeted),
+  categories: month.categories
+    .filter(category => !category.deleted && !category.hidden)
+    .filter(category => !!categoryGroupsById[category.category_group_id])
+    .map(sanitizeCategory)
+});
+
 export const sanitizeBudget = budget => {
   const transactionIdsFromSub = uniq(
     budget.subtransactions.map(transaction => transaction.transaction_id)
@@ -27,12 +46,12 @@ export const sanitizeBudget = budget => {
   const categoryGroups = budget.category_groups.filter(
     group => !GROUPS_TO_HIDE.includes(group.name)
   );
-  const categories = budget.categories.map(category => ({
-    ...category,
-    activity: formatCurrency(category.activity),
-    balance: formatCurrency(category.balance),
-    budgeted: formatCurrency(category.budgeted)
-  }));
+  const categoryGroupsById = keyByProp("id")(categoryGroups);
+  const categories = budget.categories.map(sanitizeCategory);
+  const months = compose([
+    months => months.map(sanitizeMonth({ categoryGroupsById })),
+    sortBy("month")
+  ])(budget.months);
   const earliestDate = moment()
     .subtract(MAX_MONTHS_TO_SHOW - 1, "months")
     .format("YYYY-MM-01");
@@ -41,11 +60,11 @@ export const sanitizeBudget = budget => {
     ...omit(["category_groups"])(budget),
     accountsById: keyByProp("id")(budget.accounts),
     categoryGroups,
-    categoryGroupsById: keyByProp("id")(categoryGroups),
+    categoryGroupsById,
     categories,
     categoriesById: keyByProp("id")(categories),
     payeesById: keyByProp("id")(budget.payees),
-    months: sortBy("month")(budget.months),
+    months,
     transactions: compose([
       transactions =>
         transactions.map(transaction => ({
