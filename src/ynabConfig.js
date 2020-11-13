@@ -1,2 +1,2 @@
-export const clientId = "a956b3eb0134b7ba4a854eae1ef58fdaefa3b44109af6643d86e5e1479e5c608";
+export const clientId = "e6003be679fc8ac51fb131dc2a52a00792c6fd7465a26d1c4ac65c306ce09e59";
 export const redirectUri = process.env.REACT_APP_REDIRECT_URI;
